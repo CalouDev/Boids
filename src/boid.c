@@ -1,4 +1,5 @@
 #include "../include/boid.h"
+#include "../include/utils.h"
 
 void createBoid(Boid **boids, short *boidCount, float x, float y) {
 	*boids = SDL_realloc(*boids, (*boidCount + 1) * sizeof(Boid));
@@ -22,10 +23,13 @@ void createBoid(Boid **boids, short *boidCount, float x, float y) {
 
 	boid->mid.x = (boid->verticesPosition[0].position.x + boid->verticesPosition[1].position.x + boid->verticesPosition[2].position.x) / 3.0;
 	boid->mid.y = (boid->verticesPosition[0].position.y + boid->verticesPosition[1].position.y + boid->verticesPosition[2].position.y) / 3.0;
+
+	rotateBoid(boid, SDL_rand(360));
 }
 
 void rotateBoid(Boid *boid, float angle) {
-	float rad = angle * M_PI / 180.0;
+	angle = regulatedAngle(angle);
+	float rad = toRad(angle);
 	float c = SDL_cosf(rad);
 	float s = SDL_sinf(rad);
 
@@ -43,3 +47,10 @@ void rotateBoid(Boid *boid, float angle) {
 	boid->dir += angle;
 }
 
+void avoidBorder(Boid *boid, float x1, float x2, float y1, float y2) {
+	float boidTopX = boid->verticesPosition[0].position.x;
+	float boidTopY = boid->verticesPosition[0].position.y;
+
+	if ((boidTopY - y1) <= AVOID_RANGE || (y2 - boidTopY) <= AVOID_RANGE) rotateBoid(boid, -2.0 * boid->dir);
+	if (boidTopX - x1 <= AVOID_RANGE || x2 - boidTopX <= AVOID_RANGE) rotateBoid(boid, 180.0 - 2.0 * boid->dir);
+}
