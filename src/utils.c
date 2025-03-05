@@ -17,13 +17,34 @@ float pointsDist(float x1, float y1, float x2, float y2) {
 	return SDL_sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 }
 
-SDL_FPoint angleToVec(float angle) {
-	SDL_FPoint dirVec;
+void drawCircle(SDL_Renderer *renderer, float centerX, float centerY, float radius) {
+    int diameter = (radius * 2);
+    float x = (radius - 1);
+    float y = 0;
+    float tx = 1;
+    float ty = 1;
+    float error = (tx - diameter);
 
-	float rad = toRad(angle);
+    while (x >= y) {
+        SDL_RenderPoint(renderer, centerX + x, centerY - y);
+        SDL_RenderPoint(renderer, centerX + x, centerY + y);
+        SDL_RenderPoint(renderer, centerX - x, centerY - y);
+        SDL_RenderPoint(renderer, centerX - x, centerY + y);
+        SDL_RenderPoint(renderer, centerX + y, centerY - x);
+        SDL_RenderPoint(renderer, centerX + y, centerY + x);
+        SDL_RenderPoint(renderer, centerX - y, centerY - x);
+        SDL_RenderPoint(renderer, centerX - y, centerY + x);
 
-	dirVec.x = SDL_cosf(rad);
-	dirVec.y = SDL_sinf(rad);
+        if (error <= 0) {
+            ++y;
+            error += ty;
+            ty += 2;
+        }
 
-	return dirVec;
+        if (error > 0) {
+            --x;
+            tx += 2;
+            error += (tx - diameter);
+        }
+	}
 }
