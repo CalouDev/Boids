@@ -15,17 +15,23 @@ short boidCount = 0;
 Boid *boids = NULL;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
-    if (!SDL_Init(SDL_INIT_VIDEO)) return SDL_APP_FAILURE;
-	if (!SDL_Init(SDL_INIT_AUDIO)) return SDL_APP_FAILURE;
-	if (!TTF_Init()) return SDL_APP_FAILURE;
+    if (!SDL_Init(SDL_INIT_VIDEO) || !SDL_Init(SDL_INIT_AUDIO) || !TTF_Init()) return SDL_APP_FAILURE;
 
     window = SDL_CreateWindow("Boïds", WIN_W, WIN_H, SDL_WINDOW_OPENGL);
     if (!window) return SDL_APP_FAILURE;
 
+	SDL_GLContext glContext = SDL_GL_CreateContext(window);
+    if (!glContext) {
+        SDL_Log("Erreur: Impossible de créer le contexte OpenGL (%s)\n", SDL_GetError());
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return -1;
+    }
+
     renderer = SDL_CreateRenderer(window, NULL);
     if (!renderer) return SDL_APP_FAILURE;
 
-	boids = SDL_calloc(10, sizeof(Boid));
+	boids = SDL_calloc(1, sizeof(Boid));
 
 	return SDL_APP_CONTINUE;
 }
@@ -72,10 +78,12 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 		boids[i].mid.y = (boids[i].verticesPosition[0].position.y + boids[i].verticesPosition[1].position.y + boids[i].verticesPosition[2].position.y) / 3.0;
 
 		SDL_RenderGeometry(renderer, NULL, boids[i].verticesPosition, 3, NULL, 3);
+		SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
+		for (int k = 0; k < 3; ++k) drawCircle(renderer, boids[i].verticesPosition[k].position.x, boids[i].verticesPosition[k].position.y, AVOID_RANGE);
+		SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+		drawCircle(renderer, boids[i].mid.x, boids[i].mid.y, DETECTION_RANGE);
 	}
 
 	SDL_RenderPresent(renderer);
 
 	return SDL_APP_CONTINUE;
-}
-
