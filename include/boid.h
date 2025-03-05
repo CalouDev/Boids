@@ -8,6 +8,7 @@
 #define BOID_H 20
 #define BOID_SPD 0.09
 #define AVOID_RANGE 4
+#define DETECTION_RANGE 10
 
 typedef struct {
 	SDL_Vertex verticesPosition[3];
