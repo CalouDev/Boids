@@ -64,10 +64,13 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 	SDL_SetRenderDrawColor(renderer, 10, 10, 10, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);	
 
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+	SDL_RenderRect(renderer, &(SDL_FRect){20, 20, WIN_W - 320, WIN_H - 40});
+
 	for (int i = 0; i < boidCount; ++i) {
 		regulatedAngle(boids[i].dir);
 	
-		avoidBorder(&boids[i], 0, WIN_W, 0, WIN_H);
+		avoidBorder(&boids[i], 20, WIN_W - 300, 20, WIN_H - 20);
 
 		for (int j = 0; j < 3; ++j) {
 			boids[i].verticesPosition[j].position.x += BOID_SPD * SDL_cosf(toRad(boids[i].dir));
@@ -87,3 +90,5 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 	SDL_RenderPresent(renderer);
 
 	return SDL_APP_CONTINUE;
+}
+
